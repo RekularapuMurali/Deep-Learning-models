@@ -12,6 +12,8 @@ scaler = joblib.load("scaler.pkl")
 def index():
 
     prediction = None
+    diabetic_percent = None
+    non_diabetic_percent = None
 
     if request.method == "POST":
 
@@ -27,22 +29,31 @@ def index():
                 float(request.form['age'])
             ]
 
-            data = scaler.transform([data])
+            data = np.array([data])
+            data = scaler.transform(data)
 
             result = model.predict(data)[0][0]
 
-            confidence = result * 100
+            # Convert to percentages
+            diabetic_percent = result * 100
+            non_diabetic_percent = (1 - result) * 100
 
-            if result > 0.5:
-                prediction = f"Diabetic ({confidence:.2f}%)"
+            # Main label
+            if result >= 0.5:
+                prediction = "🩺 Diabetic"
             else:
-                prediction = f"Not Diabetic ({100-confidence:.2f}%)"
+                prediction = "✅ Not Diabetic"
 
         except Exception as e:
             print("ERROR:", e)
             prediction = "Invalid Input"
 
-    return render_template("index.html", prediction=prediction)
+    return render_template(
+        "index.html",
+        prediction=prediction,
+        diabetic_percent=diabetic_percent,
+        non_diabetic_percent=non_diabetic_percent
+    )
 
 if __name__ == "__main__":
     app.run(debug=True)

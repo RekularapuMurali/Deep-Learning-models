@@ -1,146 +1,85 @@
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI House Price Predictor</title>
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>AI House Price Predictor</title>
-
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
+    <div class="container">
+        <h1>🏠 AI House Price Predictor</h1>
 
-<div class="container">
+        <form method="POST">
+            <div class="grid">
+                <input type="number" step="any" name="income" placeholder="Median Income" required>
+                <input type="number" step="any" name="age" placeholder="House Age" required>
+                <input type="number" step="any" name="rooms" placeholder="Average Rooms" required>
+                <input type="number" step="any" name="bedrooms" placeholder="Average Bedrooms" required>
+                <input type="number" step="any" name="population" placeholder="Population" required>
+                <input type="number" step="any" name="occupancy" placeholder="Average Occupancy" required>
+                <input type="number" step="any" name="lat" placeholder="Latitude" required>
+                <input type="number" step="any" name="lon" placeholder="Longitude" required>
+            </div>
 
-<h1>🏠 AI House Price Predictor</h1>
+            <button type="submit">Predict Price</button>
+        </form>
 
-<form method="POST">
+        {% if prediction %}
+        <div class="result">
+            <h2>Predicted Price</h2>
+            <p>$ {{ prediction }}</p>
+        </div>
 
-<div class="grid">
+        <canvas id="predictionChart"></canvas>
 
-<input type="number" step="any" name="income" placeholder="Median Income" required>
+        <script>
+            const ctx = document.getElementById('predictionChart');
 
-<input type="number" step="any" name="age" placeholder="House Age" required>
-
-<input type="number" step="any" name="rooms" placeholder="Average Rooms" required>
-
-<input type="number" step="any" name="bedrooms" placeholder="Average Bedrooms" required>
-
-<input type="number" step="any" name="population" placeholder="Population" required>
-
-<input type="number" step="any" name="occupancy" placeholder="Average Occupancy" required>
-
-<input type="number" step="any" name="lat" placeholder="Latitude" required>
-
-<input type="number" step="any" name="lon" placeholder="Longitude" required>
-
-</div>
-
-<button type="submit">Predict Price</button>
-
-</form>
-
-{% if prediction %}
-
-<div class="result">
-
-<h2>Predicted Price</h2>
-
-<p>${{prediction}}</p>
-
-</div>
-
-<canvas id="predictionChart"></canvas>
-
-<script>
-
-const ctx = document.getElementById('predictionChart');
-
-new Chart(ctx, {
-
-type: 'bar',
-
-data: {
-
-labels: [
-'Income',
-'Age',
-'Rooms',
-'Bedrooms',
-'Population',
-'Occupancy',
-'Latitude',
-'Longitude'
-],
-
-datasets: [{
-
-label: 'Input Features',
-
-data: [
-{{ request.form.get('income',0) }},
-{{ request.form.get('age',0) }},
-{{ request.form.get('rooms',0) }},
-{{ request.form.get('bedrooms',0) }},
-{{ request.form.get('population',0) }},
-{{ request.form.get('occupancy',0) }},
-{{ request.form.get('lat',0) }},
-{{ request.form.get('lon',0) }}
-],
-
-backgroundColor: '#ffd700'
-
-}]
-
-},
-
-options: {
-
-responsive: true,
-
-plugins: {
-
-legend: {
-labels: {
-color: 'white'
-}
-}
-
-},
-
-scales: {
-
-x: {
-ticks: {
-color: 'white'
-}
-},
-
-y: {
-ticks: {
-color: 'white'
-}
-}
-
-}
-
-}
-
-});
-
-</script>
-
-{% endif %}
-
-</div>
-
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: [
+                        'Income', 'Age', 'Rooms', 'Bedrooms',
+                        'Population', 'Occupancy', 'Latitude', 'Longitude'
+                    ],
+                    datasets: [{
+                        label: 'Input Features',
+                        data: [
+                            {{ request.form.get('income', 0) }},
+                            {{ request.form.get('age', 0) }},
+                            {{ request.form.get('rooms', 0) }},
+                            {{ request.form.get('bedrooms', 0) }},
+                            {{ request.form.get('population', 0) }},
+                            {{ request.form.get('occupancy', 0) }},
+                            {{ request.form.get('lat', 0) }},
+                            {{ request.form.get('lon', 0) }}
+                        ],
+                        backgroundColor: '#ffd700'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            labels: { color: 'white' }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: 'white' }
+                        },
+                        y: {
+                            ticks: { color: 'white' }
+                        }
+                    }
+                }
+            });
+        </script>
+        {% endif %}
+    </div>
 </body>
-
 </html>

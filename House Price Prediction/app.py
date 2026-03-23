@@ -5,25 +5,40 @@ import joblib
 
 app = Flask(__name__)
 
-model = load_model("house_model.h5", compile=False)
+# Load model & scaler
+model = load_model("house_model.keras", compile=False)
 scaler = joblib.load("scaler.pkl")
 
-@app.route("/", methods=["GET","POST"])
+@app.route("/", methods=["GET", "POST"])
 def index():
 
     prediction = None
 
     if request.method == "POST":
-
         try:
-            data = [float(x) for x in request.form.values()]
-            data = scaler.transform([data])
+            # FIXED: Explicit feature order
+            data = [
+                float(request.form["income"]),
+                float(request.form["age"]),
+                float(request.form["rooms"]),
+                float(request.form["bedrooms"]),
+                float(request.form["population"]),
+                float(request.form["occupancy"]),
+                float(request.form["lat"]),
+                float(request.form["lon"])
+            ]
 
-            price = model.predict(data)[0][0]
-            prediction = round(price * 100000,2)
+            # Scale input
+            data_scaled = scaler.transform([data])
 
-        except:
-            prediction = "Invalid input"
+            # Predict
+            price = model.predict(data_scaled)[0][0]
+
+            # Convert to USD
+            prediction = f"{price * 100000:,.2f}"
+
+        except Exception as e:
+            prediction = f"Error: {str(e)}"
 
     return render_template("index.html", prediction=prediction)
 

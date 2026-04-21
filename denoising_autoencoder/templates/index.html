@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Medical Image Denoiser</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 650px; margin: 60px auto; background: #f0f9ff; }
+        h1 { color: #01579b; text-align: center; }
+        .box { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        button { background: #0277bd; color: white; padding: 12px 28px; border: none; border-radius: 8px; cursor: pointer; font-size: 15px; margin-top: 10px; }
+        button:hover { background: #01579b; }
+        #status { margin-top: 15px; font-weight: bold; color: #2e7d32; }
+        .images { display: flex; gap: 20px; margin-top: 20px; }
+        .images div { flex: 1; text-align: center; }
+        .images img { max-width: 100%; border-radius: 8px; border: 1px solid #ddd; }
+        #dl { display: none; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <h1>🏥 Medical Image Denoiser (DAE)</h1>
+    <div class="box">
+        <p>Upload a noisy MRI/CT scan image to denoise it.</p>
+        <input type="file" id="imageInput" accept="image/*"><br>
+        <button onclick="uploadImage()">Denoise Image</button>
+        <div id="status"></div>
+        <div id="dl"><a href="/download"><button>⬇ Download Denoised Image</button></a></div>
+        <div class="images">
+            <div><p><b>Original</b></p><img id="original" src="" style="display:none"></div>
+            <div><p><b>Denoised</b></p><img id="result" src="" style="display:none"></div>
+        </div>
+    </div>
+    <script>
+        let pollInterval = null;
+
+        async function uploadImage() {
+            const file = document.getElementById('imageInput').files[0];
+            if (!file) { alert('Select an image!'); return; }
+
+            document.getElementById('status').textContent = '⏳ Uploading...';
+            document.getElementById('dl').style.display = 'none';
+
+            // Show original preview
+            const original = document.getElementById('original');
+            original.src = URL.createObjectURL(file);
+            original.style.display = 'block';
+
+            const form = new FormData();
+            form.append('image', file);
+
+            const res = await fetch('/denoise', { method: 'POST', body: form });
+            const data = await res.json();
+
+            if (data.status === 'started') {
+                document.getElementById('status').textContent = '⚙️ Denoising...';
+                pollInterval = setInterval(checkStatus, 2000);
+            }
+        }
+
+        async function checkStatus() {
+            const res = await fetch('/status');
+            const data = await res.json();
+            if (data.state === 'done') {
+                clearInterval(pollInterval);
+                document.getElementById('status').textContent = '✅ Done!';
+                document.getElementById('dl').style.display = 'block';
+                const result = document.getElementById('result');
+                result.src = '/download?' + Date.now();
+                result.style.display = 'block';
+            } else if (data.state === 'error') {
+                clearInterval(pollInterval);
+                document.getElementById('status').textContent = '❌ Error: ' + data.error;
+            }
+        }
+    </script>
+</body>
+</html>

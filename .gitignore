@@ -1,0 +1,26 @@
+# Large data files
+*.nii
+*.h5
+*.keras
+*.pkl
+*.pickle
+
+# Dataset directories
+denoising_autoencoder/dataset/
+Diabetes Prediction/uploads/
+deepdream-app/uploads/
+deepdream-app/outputs/
+denoising_autoencoder/uploads/
+denoising_autoencoder/outputs/
+
+# Python environments
+venv/
+env/
+ENV/
+__pycache__/
+*.pyc
+
+# IDE
+.vscode/
+.idea/
+*.swp

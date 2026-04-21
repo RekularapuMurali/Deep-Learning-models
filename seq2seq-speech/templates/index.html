@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Speech to Text - Seq2Seq LSTM</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: Arial, sans-serif; background: #f0f4ff; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .container { background: white; padding: 40px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); width: 600px; }
+        h1 { color: #1a237e; text-align: center; margin-bottom: 8px; }
+        p.sub { text-align: center; color: #666; margin-bottom: 30px; font-size: 14px; }
+        .section { margin-bottom: 24px; }
+        label { font-weight: bold; color: #333; display: block; margin-bottom: 8px; }
+        input[type="file"] { width: 100%; padding: 10px; border: 2px dashed #90caf9; border-radius: 8px; background: #f5f9ff; }
+        .btn { width: 100%; padding: 14px; background: #1565c0; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; margin-top: 8px; }
+        .btn:hover { background: #0d47a1; }
+        .btn.record { background: #c62828; }
+        .btn.record:hover { background: #b71c1c; }
+        .btn.recording { background: #e53935; animation: pulse 1s infinite; }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
+        #result-box { background: #f5f5f5; border-radius: 8px; padding: 20px; margin-top: 20px; min-height: 80px; border-left: 4px solid #1565c0; }
+        #result-text { font-size: 20px; color: #1a237e; font-weight: bold; }
+        #status { text-align: center; color: #388e3c; font-weight: bold; margin-top: 10px; }
+        .divider { text-align: center; color: #999; margin: 16px 0; font-size: 13px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>🎤 Speech to Text</h1>
+    <p class="sub">Seq2Seq LSTM Encoder-Decoder Model</p>
+
+    <!-- Record from mic -->
+    <div class="section">
+        <label>Option 1: Record from Microphone</label>
+        <button class="btn record" id="recordBtn" onclick="toggleRecord()">🔴 Start Recording</button>
+        <div id="recordStatus" style="text-align:center;color:#666;margin-top:6px;font-size:13px;"></div>
+    </div>
+
+    <div class="divider">── or ──</div>
+
+    <!-- Upload audio file -->
+    <div class="section">
+        <label>Option 2: Upload Audio File (.wav / .mp3)</label>
+        <input type="file" id="audioFile" accept=".wav,.mp3,.ogg">
+        <button class="btn" onclick="uploadAudio()" style="margin-top:10px;">📤 Transcribe File</button>
+    </div>
+
+    <div id="status"></div>
+
+    <div id="result-box" style="display:none;">
+        <p style="font-size:12px;color:#999;margin-bottom:6px;">TRANSCRIPTION OUTPUT:</p>
+        <p id="result-text"></p>
+    </div>
+</div>
+
+<script>
+    let mediaRecorder = null;
+    let audioChunks = [];
+    let isRecording = false;
+
+    async function toggleRecord() {
+        if (!isRecording) {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+                mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+                mediaRecorder.onstop = async () => {
+                    const blob = new Blob(audioChunks, { type: 'audio/wav' });
+                    await sendAudio(blob);
+                    stream.getTracks().forEach(t => t.stop());
+                };
+                mediaRecorder.start();
+                isRecording = true;
+                document.getElementById('recordBtn').textContent = '⏹ Stop Recording';
+                document.getElementById('recordBtn').classList.add('recording');
+                document.getElementById('recordStatus').textContent = '🔴 Recording...';
+            } catch (e) {
+                alert('Microphone access denied. Please allow microphone access.');
+            }
+        } else {
+            mediaRecorder.stop();
+            isRecording = false;
+            document.getElementById('recordBtn').textContent = '🔴 Start Recording';
+            document.getElementById('recordBtn').classList.remove('recording');
+            document.getElementById('recordStatus').textContent = 'Processing...';
+        }
+    }
+
+    async function uploadAudio() {
+        const file = document.getElementById('audioFile').files[0];
+        if (!file) { alert('Please select an audio file!'); return; }
+        await sendAudio(file);
+    }
+
+    async function sendAudio(blob) {
+        document.getElementById('status').textContent = '⚙️ Transcribing...';
+        document.getElementById('result-box').style.display = 'none';
+
+        const form = new FormData();
+        form.append('audio', blob, 'audio.wav');
+
+        try {
+            const res = await fetch('/transcribe', { method: 'POST', body: form });
+            const data = await res.json();
+
+            document.getElementById('recordStatus').textContent = '';
+            if (data.status === 'success') {
+                document.getElementById('status').textContent = '✅ Done!';
+                document.getElementById('result-text').textContent = data.text;
+                document.getElementById('result-box').style.display = 'block';
+            } else {
+                document.getElementById('status').textContent = '❌ Error: ' + data.error;
+            }
+        } catch (err) {
+            document.getElementById('status').textContent = '❌ Failed: ' + err.message;
+        }
+    }
+</script>
+</body>
+</html>

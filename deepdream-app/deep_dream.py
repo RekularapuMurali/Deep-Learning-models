@@ -39,11 +39,13 @@ def deepdream_step(img, step_size):
     img = tf.clip_by_value(img, -1, 1)
     return img
 
-def run_deep_dream(input_path, output_path, steps=100, step_size=0.01, num_octaves=3, octave_scale=1.3):
+def run_deep_dream(input_path, output_path, steps=20, step_size=0.01, num_octaves=1, octave_scale=1.3):
+    print("Starting Deep Dream...", flush=True)
     img = preprocess_image(input_path)
     base_shape = img.shape[:2]
 
     for octave in range(num_octaves):
+        print(f"Octave {octave+1}/{num_octaves}", flush=True)
         new_h = int(base_shape[0] * (octave_scale ** octave))
         new_w = int(base_shape[1] * (octave_scale ** octave))
         img_pil = Image.fromarray(np.clip((img / 2.0 + 0.5) * 255, 0, 255).astype(np.uint8))
@@ -53,9 +55,13 @@ def run_deep_dream(input_path, output_path, steps=100, step_size=0.01, num_octav
         img_tensor = tf.Variable(img)
         for step in range(steps):
             img_tensor = tf.Variable(deepdream_step(img_tensor, step_size))
+            if step % 5 == 0:
+                print(f"  Step {step}/{steps}", flush=True)
 
         img = img_tensor.numpy()
 
+    print("Saving output...", flush=True)
     result = deprocess_image(img)
     result = result.resize((500, 500), Image.LANCZOS)
     result.save(output_path)
+    print("Done!", flush=True)

@@ -24,3 +24,22 @@ __pycache__/
 .vscode/
 .idea/
 *.swp
+
+# Large ML model files
+*.safetensors
+*.bin
+*.pt
+*.pth
+*.ckpt
+*.onnx
+
+# Transformers / HuggingFace model folders
+medical-bert/model/
+
+# Logs and temp files
+logs/
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db

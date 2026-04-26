@@ -1,0 +1,51 @@
+# Medical domain training data — symptoms & diagnoses
+MEDICAL_TEXTS = [
+    ("Patient presents with severe chest pain and shortness of breath", "cardiac"),
+    ("Experiencing palpitations and irregular heartbeat for 3 days", "cardiac"),
+    ("High blood pressure with dizziness and headache", "cardiac"),
+    ("Chest tightness radiating to left arm and jaw", "cardiac"),
+    ("Rapid heart rate and sweating during rest", "cardiac"),
+    ("Persistent cough with blood in sputum for two weeks", "respiratory"),
+    ("Difficulty breathing and wheezing at night", "respiratory"),
+    ("Chronic shortness of breath with mucus production", "respiratory"),
+    ("Fever with productive cough and chest congestion", "respiratory"),
+    ("Asthma attack with severe breathing difficulty", "respiratory"),
+    ("Severe abdominal pain with nausea and vomiting", "gastrointestinal"),
+    ("Diarrhea and stomach cramps after eating", "gastrointestinal"),
+    ("Bloating and acid reflux after meals", "gastrointestinal"),
+    ("Loss of appetite with upper abdominal discomfort", "gastrointestinal"),
+    ("Constipation with rectal bleeding", "gastrointestinal"),
+    ("Severe headache with sensitivity to light and sound", "neurological"),
+    ("Numbness and tingling in hands and feet", "neurological"),
+    ("Sudden confusion and difficulty speaking", "neurological"),
+    ("Memory loss and difficulty concentrating", "neurological"),
+    ("Seizures and loss of consciousness", "neurological"),
+    ("Joint pain and stiffness in the morning", "musculoskeletal"),
+    ("Lower back pain radiating down the leg", "musculoskeletal"),
+    ("Swollen and painful knee after exercise", "musculoskeletal"),
+    ("Muscle weakness and fatigue in limbs", "musculoskeletal"),
+    ("Neck stiffness with shoulder pain", "musculoskeletal"),
+    ("Frequent urination with burning sensation", "urological"),
+    ("Blood in urine with lower back pain", "urological"),
+    ("Kidney pain with fever and chills", "urological"),
+    ("Urinary incontinence and pelvic pressure", "urological"),
+    ("Painful urination and cloudy urine", "urological"),
+    ("Skin rash with itching and redness", "dermatological"),
+    ("Hives and swelling after insect bite", "dermatological"),
+    ("Dry and scaly patches on skin", "dermatological"),
+    ("Acne and oily skin with inflammation", "dermatological"),
+    ("Yellowing of skin and eyes", "dermatological"),
+    ("Excessive thirst and frequent urination", "endocrine"),
+    ("Sudden weight loss with increased appetite", "endocrine"),
+    ("Fatigue and cold intolerance with weight gain", "endocrine"),
+    ("Hair loss and brittle nails with fatigue", "endocrine"),
+    ("Hot flashes and night sweats", "endocrine"),
+]
+
+LABELS = ["cardiac", "respiratory", "gastrointestinal",
+          "neurological", "musculoskeletal", "urological",
+          "dermatological", "endocrine"]
+
+LABEL2IDX = {l: i for i, l in enumerate(LABELS)}
+IDX2LABEL = {i: l for i, l in enumerate(LABELS)}
+NUM_LABELS = len(LABELS)

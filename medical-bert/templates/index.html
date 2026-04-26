@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Medical BERT Classifier</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: Arial, sans-serif; background: #f0f9ff; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .container { background: white; padding: 40px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); width: 650px; }
+        h1 { color: #01579b; text-align: center; margin-bottom: 6px; }
+        p.sub { text-align: center; color: #666; margin-bottom: 28px; font-size: 13px; }
+        textarea { width: 100%; height: 110px; padding: 14px; border: 2px solid #b3e5fc; border-radius: 10px; font-size: 15px; resize: vertical; outline: none; }
+        textarea:focus { border-color: #0288d1; }
+        button { width: 100%; padding: 14px; background: #0277bd; color: white; border: none; border-radius: 10px; font-size: 16px; cursor: pointer; margin-top: 12px; }
+        button:hover { background: #01579b; }
+        #status { text-align: center; font-weight: bold; margin-top: 14px; color: #388e3c; }
+        #result-box { margin-top: 20px; display: none; }
+        .top-result { background: #e1f5fe; border-left: 5px solid #0288d1; padding: 16px 20px; border-radius: 10px; margin-bottom: 16px; }
+        .top-label { font-size: 24px; font-weight: bold; color: #01579b; text-transform: capitalize; }
+        .top-conf { font-size: 14px; color: #555; margin-top: 4px; }
+        .bar-container { margin-top: 16px; }
+        .bar-label { font-size: 13px; color: #333; margin-bottom: 4px; text-transform: capitalize; display: flex; justify-content: space-between; }
+        .bar-bg { background: #e0e0e0; border-radius: 6px; height: 14px; margin-bottom: 10px; }
+        .bar-fill { height: 14px; border-radius: 6px; background: linear-gradient(90deg, #0288d1, #26c6da); transition: width 0.6s ease; }
+        .examples { margin-top: 20px; }
+        .examples p { font-size: 12px; color: #888; margin-bottom: 8px; }
+        .chip { display: inline-block; background: #e3f2fd; color: #0277bd; border-radius: 20px; padding: 5px 12px; font-size: 12px; margin: 3px; cursor: pointer; border: 1px solid #90caf9; }
+        .chip:hover { background: #bbdefb; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>🏥 Medical-BERT Classifier</h1>
+    <p class="sub">Fine-tuned BERT for Medical Symptom Classification | Deep Learning Assignment</p>
+
+    <textarea id="symptomText" placeholder="Describe symptoms e.g: Patient has severe chest pain with shortness of breath..."></textarea>
+    <button onclick="classify()">🔍 Classify Symptoms</button>
+
+    <div class="examples">
+        <p>Quick examples (click to fill):</p>
+        <span class="chip" onclick="fill('Severe chest pain radiating to left arm')">Chest pain</span>
+        <span class="chip" onclick="fill('Persistent cough with difficulty breathing')">Cough</span>
+        <span class="chip" onclick="fill('Severe headache with nausea and light sensitivity')">Headache</span>
+        <span class="chip" onclick="fill('Joint pain and morning stiffness in knees')">Joint pain</span>
+        <span class="chip" onclick="fill('Frequent urination with burning sensation')">Urination</span>
+        <span class="chip" onclick="fill('Skin rash with redness and itching')">Skin rash</span>
+        <span class="chip" onclick="fill('Excessive thirst and sudden weight loss')">Thirst</span>
+        <span class="chip" onclick="fill('Nausea vomiting and abdominal pain')">Stomach</span>
+    </div>
+
+    <div id="status"></div>
+
+    <div id="result-box">
+        <div class="top-result">
+            <div class="top-label" id="top-label"></div>
+            <div class="top-conf" id="top-conf"></div>
+        </div>
+        <div class="bar-container" id="bars"></div>
+    </div>
+</div>
+
+<script>
+    function fill(text) {
+        document.getElementById('symptomText').value = text;
+    }
+
+    async function classify() {
+        const text = document.getElementById('symptomText').value.trim();
+        if (!text) { alert('Enter symptoms first!'); return; }
+
+        document.getElementById('status').textContent = '⚙️ Analyzing...';
+        document.getElementById('result-box').style.display = 'none';
+
+        const res  = await fetch('/predict', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text })
+        });
+        const data = await res.json();
+
+        if (data.status === 'success') {
+            document.getElementById('status').textContent = '✅ Done!';
+            document.getElementById('top-label').textContent = '🏷 ' + data.label;
+            document.getElementById('top-conf').textContent  = `Confidence: ${data.confidence}%`;
+
+            // Draw bars
+            const barsDiv = document.getElementById('bars');
+            barsDiv.innerHTML = '<p style="font-size:13px;font-weight:bold;margin-bottom:10px;">All Category Scores:</p>';
+            data.all_scores.forEach(s => {
+                barsDiv.innerHTML += `
+                    <div class="bar-label">
+                        <span>${s.label}</span><span>${s.score}%</span>
+                    </div>
+                    <div class="bar-bg">
+                        <div class="bar-fill" style="width:${s.score}%"></div>
+                    </div>`;
+            });
+
+            document.getElementById('result-box').style.display = 'block';
+        } else {
+            document.getElementById('status').textContent = '❌ ' + data.error;
+        }
+    }
+</script>
+</body>
+</html>

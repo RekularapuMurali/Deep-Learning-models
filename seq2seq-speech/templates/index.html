@@ -9,93 +9,140 @@
         .container { background: white; padding: 40px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); width: 600px; }
         h1 { color: #1a237e; text-align: center; margin-bottom: 8px; }
         p.sub { text-align: center; color: #666; margin-bottom: 30px; font-size: 14px; }
-        .section { margin-bottom: 24px; }
-        label { font-weight: bold; color: #333; display: block; margin-bottom: 8px; }
-        input[type="file"] { width: 100%; padding: 10px; border: 2px dashed #90caf9; border-radius: 8px; background: #f5f9ff; }
-        .btn { width: 100%; padding: 14px; background: #1565c0; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; margin-top: 8px; }
-        .btn:hover { background: #0d47a1; }
-        .btn.record { background: #c62828; }
-        .btn.record:hover { background: #b71c1c; }
-        .btn.recording { background: #e53935; animation: pulse 1s infinite; }
+        .btn { width: 100%; padding: 14px; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; margin-top: 8px; }
+        .btn-red { background: #c62828; }
+        .btn-red:hover { background: #b71c1c; }
+        .btn-blue { background: #1565c0; }
+        .btn-blue:hover { background: #0d47a1; }
+        .recording { animation: pulse 1s infinite; }
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
-        #result-box { background: #f5f5f5; border-radius: 8px; padding: 20px; margin-top: 20px; min-height: 80px; border-left: 4px solid #1565c0; }
-        #result-text { font-size: 20px; color: #1a237e; font-weight: bold; }
-        #status { text-align: center; color: #388e3c; font-weight: bold; margin-top: 10px; }
-        .divider { text-align: center; color: #999; margin: 16px 0; font-size: 13px; }
+        #result-box { background: #f5f5f5; border-radius: 8px; padding: 20px; margin-top: 20px; border-left: 4px solid #1565c0; display:none; }
+        #result-text { font-size: 22px; color: #1a237e; font-weight: bold; }
+        #status { text-align: center; font-weight: bold; margin-top: 14px; color: #388e3c; }
+        .divider { text-align: center; color: #999; margin: 16px 0; }
+        input[type="file"] { width:100%; padding:10px; border:2px dashed #90caf9; border-radius:8px; background:#f5f9ff; }
+        label { font-weight:bold; display:block; margin-bottom:8px; }
     </style>
 </head>
 <body>
 <div class="container">
     <h1>🎤 Speech to Text</h1>
-    <p class="sub">Seq2Seq LSTM Encoder-Decoder Model</p>
+    <p class="sub">Seq2Seq LSTM Encoder-Decoder | Deep Learning Assignment</p>
 
-    <!-- Record from mic -->
-    <div class="section">
-        <label>Option 1: Record from Microphone</label>
-        <button class="btn record" id="recordBtn" onclick="toggleRecord()">🔴 Start Recording</button>
-        <div id="recordStatus" style="text-align:center;color:#666;margin-top:6px;font-size:13px;"></div>
-    </div>
+    <label>Option 1: Record from Microphone</label>
+    <button class="btn btn-red" id="recordBtn" onclick="toggleRecord()">🔴 Start Recording</button>
+    <div id="recordStatus" style="text-align:center;color:#888;margin-top:6px;font-size:13px;"></div>
 
     <div class="divider">── or ──</div>
 
-    <!-- Upload audio file -->
-    <div class="section">
-        <label>Option 2: Upload Audio File (.wav / .mp3)</label>
-        <input type="file" id="audioFile" accept=".wav,.mp3,.ogg">
-        <button class="btn" onclick="uploadAudio()" style="margin-top:10px;">📤 Transcribe File</button>
-    </div>
+    <label>Option 2: Upload WAV File</label>
+    <input type="file" id="audioFile" accept=".wav">
+    <button class="btn btn-blue" onclick="uploadFile()" style="margin-top:10px;">📤 Transcribe File</button>
 
     <div id="status"></div>
-
-    <div id="result-box" style="display:none;">
-        <p style="font-size:12px;color:#999;margin-bottom:6px;">TRANSCRIPTION OUTPUT:</p>
+    <div id="result-box">
+        <p style="font-size:11px;color:#999;margin-bottom:6px;">TRANSCRIPTION:</p>
         <p id="result-text"></p>
     </div>
 </div>
 
 <script>
-    let mediaRecorder = null;
-    let audioChunks = [];
-    let isRecording = false;
+    let mediaRecorder, audioChunks = [], isRecording = false;
+    let audioContext, processor, input, globalStream;
 
     async function toggleRecord() {
+        const btn = document.getElementById('recordBtn');
+        const recStatus = document.getElementById('recordStatus');
+
         if (!isRecording) {
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                mediaRecorder = new MediaRecorder(stream);
-                audioChunks = [];
-                mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
-                mediaRecorder.onstop = async () => {
-                    const blob = new Blob(audioChunks, { type: 'audio/wav' });
-                    await sendAudio(blob);
-                    stream.getTracks().forEach(t => t.stop());
+                globalStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                audioContext = new AudioContext({ sampleRate: 16000 });
+                input = audioContext.createMediaStreamSource(globalStream);
+                processor = audioContext.createScriptProcessor(4096, 1, 1);
+
+                let recordedBuffers = [];
+                processor.onaudioprocess = e => {
+                    recordedBuffers.push(new Float32Array(e.inputBuffer.getChannelData(0)));
                 };
-                mediaRecorder.start();
+
+                input.connect(processor);
+                processor.connect(audioContext.destination);
+
                 isRecording = true;
-                document.getElementById('recordBtn').textContent = '⏹ Stop Recording';
-                document.getElementById('recordBtn').classList.add('recording');
-                document.getElementById('recordStatus').textContent = '🔴 Recording...';
-            } catch (e) {
-                alert('Microphone access denied. Please allow microphone access.');
+                btn.textContent = '⏹ Stop Recording';
+                btn.classList.add('recording');
+                recStatus.textContent = '🔴 Recording... speak now';
+
+                // Store buffers reference globally
+                window._recordedBuffers = recordedBuffers;
+
+            } catch(e) {
+                alert('Microphone access denied!');
             }
         } else {
-            mediaRecorder.stop();
+            // Stop recording
+            processor.disconnect();
+            input.disconnect();
+            globalStream.getTracks().forEach(t => t.stop());
+
+            btn.textContent = '🔴 Start Recording';
+            btn.classList.remove('recording');
+            recStatus.textContent = 'Processing...';
             isRecording = false;
-            document.getElementById('recordBtn').textContent = '🔴 Start Recording';
-            document.getElementById('recordBtn').classList.remove('recording');
-            document.getElementById('recordStatus').textContent = 'Processing...';
+
+            // Convert to WAV and send
+            const wavBlob = encodeWAV(window._recordedBuffers, audioContext.sampleRate);
+            await sendAudio(wavBlob);
         }
     }
 
-    async function uploadAudio() {
+    function encodeWAV(buffers, sampleRate) {
+        // Merge all buffers
+        let length = buffers.reduce((a, b) => a + b.length, 0);
+        let merged = new Float32Array(length);
+        let offset = 0;
+        for (let b of buffers) { merged.set(b, offset); offset += b.length; }
+
+        // Convert float32 to int16
+        let pcm = new Int16Array(merged.length);
+        for (let i = 0; i < merged.length; i++) {
+            pcm[i] = Math.max(-32768, Math.min(32767, merged[i] * 32768));
+        }
+
+        // Build WAV header
+        let buffer = new ArrayBuffer(44 + pcm.byteLength);
+        let view = new DataView(buffer);
+        function writeStr(o, s) { for (let i=0;i<s.length;i++) view.setUint8(o+i, s.charCodeAt(i)); }
+
+        writeStr(0, 'RIFF');
+        view.setUint32(4, 36 + pcm.byteLength, true);
+        writeStr(8, 'WAVE');
+        writeStr(12, 'fmt ');
+        view.setUint32(16, 16, true);
+        view.setUint16(20, 1, true);       // PCM
+        view.setUint16(22, 1, true);       // mono
+        view.setUint32(24, sampleRate, true);
+        view.setUint32(28, sampleRate * 2, true);
+        view.setUint16(32, 2, true);
+        view.setUint16(34, 16, true);
+        writeStr(36, 'data');
+        view.setUint32(40, pcm.byteLength, true);
+        new Int16Array(buffer, 44).set(pcm);
+
+        return new Blob([buffer], { type: 'audio/wav' });
+    }
+
+    async function uploadFile() {
         const file = document.getElementById('audioFile').files[0];
-        if (!file) { alert('Please select an audio file!'); return; }
+        if (!file) { alert('Select a WAV file!'); return; }
         await sendAudio(file);
     }
 
     async function sendAudio(blob) {
         document.getElementById('status').textContent = '⚙️ Transcribing...';
         document.getElementById('result-box').style.display = 'none';
+        document.getElementById('recordStatus').textContent = '';
 
         const form = new FormData();
         form.append('audio', blob, 'audio.wav');
@@ -104,15 +151,14 @@
             const res = await fetch('/transcribe', { method: 'POST', body: form });
             const data = await res.json();
 
-            document.getElementById('recordStatus').textContent = '';
             if (data.status === 'success') {
                 document.getElementById('status').textContent = '✅ Done!';
                 document.getElementById('result-text').textContent = data.text;
                 document.getElementById('result-box').style.display = 'block';
             } else {
-                document.getElementById('status').textContent = '❌ Error: ' + data.error;
+                document.getElementById('status').textContent = '❌ ' + data.error;
             }
-        } catch (err) {
+        } catch(err) {
             document.getElementById('status').textContent = '❌ Failed: ' + err.message;
         }
     }

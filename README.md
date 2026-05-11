@@ -112,52 +112,6 @@ A comprehensive AI-powered web application demonstrating diverse deep learning a
 
 ---
 
-## 📁 Project Structure
-
-```
-Deep-Learning-Models/
-├── House Price Prediction/          # MLP Regression
-├── Handwritten Digit Classification/ # MLP Classification
-├── Diabetes Prediction/              # MLP Binary Classification
-├── deepdream-app/                   # InceptionV3 Art Generator
-├── denoising_autoencoder/           # CNN Autoencoder (BraTS)
-├── medical-bert/                    # BERT Text Classifier
-├── seq2seq-speech/                  # LSTM Seq2Seq
-├── requirements.txt                 # Dependencies
-└── README.md                        # Documentation
-```
-
----
-
-## 💾 Model Checkpoints
-
-All pre-trained models are included:
-- `house_model.keras` - House price prediction weights
-- `mnist_model.h5` - Digit classification weights
-- `diabetes_model.h5` - Diabetes prediction weights
-- `dae_model.keras` - Denoising autoencoder weights
-- `model.safetensors` - Medical BERT weights
-- `seq2seq_model.keras` - Speech-to-text weights
-
----
-
-## ⚡ Quick Start
-
-1. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-2. Run any model:
-   ```bash
-   cd <model-folder>
-   python app.py
-   ```
-
-3. Open browser: `http://localhost:5000`
-
----
-
 ## 🎯 Use Cases
 
 - **Healthcare**: Disease prediction, medical image enhancement, clinical text analysis
@@ -165,6 +119,241 @@ All pre-trained models are included:
 - **Accessibility**: Handwriting recognition, speech-to-text
 - **Creative**: Artistic image generation, style transfer
 - **Research**: Deep learning architecture comparison, model evaluation
+
+---
+
+## � Project Structure
+
+```
+NeuroHub/
+├── House Price Prediction/
+│   ├── app.py                       # Flask application
+│   ├── house_model.keras            # Pre-trained model
+│   ├── scaler.pkl                   # Feature scaler
+│   ├── static/
+│   │   └── style.css
+│   ├── templates/
+│   │   └── index.html
+│   └── uploads/
+│
+├── Handwritten Digit Classification/
+│   ├── app.py                       # Flask application
+│   ├── mnist_model.h5               # Pre-trained model
+│   ├── scaler.pkl                   # Feature scaler
+│   ├── static/
+│   │   └── style.css
+│   ├── templates/
+│   │   └── index.html
+│   └── uploads/
+│
+├── Diabetes Prediction/
+│   ├── app.py                       # Flask application
+│   ├── diabetes_model.h5            # Pre-trained model
+│   ├── scaler.pkl                   # Feature scaler
+│   ├── static/
+│   │   └── style.css
+│   ├── templates/
+│   │   └── index.html
+│   └── uploads/
+│
+├── deepdream-app/
+│   ├── app.py                       # Flask application
+│   ├── deep_dream.py                # Deep Dream implementation
+│   ├── templates/
+│   │   └── index.html
+│   ├── outputs/                     # Generated images
+│   └── uploads/                     # Input images
+│
+├── denoising_autoencoder/
+│   ├── app.py                       # Flask application
+│   ├── dae_model.py                 # Model architecture
+│   ├── train.py                     # Training script
+│   ├── model/
+│   │   └── dae_model.keras          # Pre-trained model
+│   ├── dataset/                     # BraTS data (2018, 2019, 2020)
+│   ├── templates/
+│   │   └── index.html
+│   ├── outputs/                     # Denoised images
+│   └── uploads/                     # Input MRI scans
+│
+├── medical-bert/
+│   ├── app.py                       # Flask application
+│   ├── train.py                     # Training script
+│   ├── data/
+│   │   └── medical_data.py          # Dataset loader
+│   ├── model/
+│   │   ├── config.json              # Model config
+│   │   ├── model.safetensors        # Pre-trained weights
+│   │   ├── tokenizer_config.json
+│   │   └── tokenizer.json
+│   └── templates/
+│       └── index.html
+│
+├── seq2seq-speech/
+│   ├── app.py                       # Flask application
+│   ├── model.py                     # Model architecture
+│   ├── train.py                     # Training script
+│   ├── utils.py                     # Utility functions
+│   ├── model/
+│   │   └── seq2seq_model.keras      # Pre-trained model
+│   ├── templates/
+│   │   └── index.html
+│   ├── outputs/                     # Transcription outputs
+│   └── uploads/                     # Audio files
+│
+├── requirements.txt                 # Project dependencies
+└── README.md                        # Documentation
+```
+
+---
+
+## 💾 Pre-trained Model Checkpoints
+
+All models come with pre-trained weights:
+
+| Model | File | Format | Size | Framework |
+|---|---|---|---|---|
+| House Price | `house_model.keras` | Keras | ~50KB | TensorFlow |
+| MNIST | `mnist_model.h5` | H5 | ~100KB | TensorFlow |
+| Diabetes | `diabetes_model.h5` | H5 | ~50KB | TensorFlow |
+| Deep Dream | Built-in InceptionV3 | Pre-loaded | ~90MB | TensorFlow |
+| DAE | `dae_model.keras` | Keras | ~200KB | TensorFlow |
+| Medical BERT | `model.safetensors` | SafeTensors | ~440MB | PyTorch |
+| Seq2Seq | `seq2seq_model.keras` | Keras | ~150KB | TensorFlow |
+
+---
+
+## 🚀 Installation & Setup
+
+### Prerequisites
+- Python 3.8 or higher
+- pip (Python package manager)
+- Git
+
+### Step 1: Clone the Repository
+
+```bash
+git clone <repository-url>
+cd NeuroHub
+```
+
+### Step 2: Create Virtual Environment (Recommended)
+
+```bash
+# Windows
+python -m venv venv
+venv\Scripts\activate
+
+# macOS/Linux
+python3 -m venv venv
+source venv/bin/activate
+```
+
+### Step 3: Install Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+**Key Dependencies:**
+- TensorFlow/Keras
+- PyTorch & Transformers (for Medical BERT)
+- Flask (web framework)
+- NumPy, Pandas, Scikit-learn
+- Pillow, librosa, matplotlib
+- Joblib
+
+---
+
+## 🎯 Running Each Model
+
+### 1. 🏠 House Price Prediction
+
+```bash
+cd "House Price Prediction"
+python app.py
+```
+- Access: `http://localhost:5000`
+- Input: Housing features (8 parameters)
+- Output: Predicted house price in USD
+
+### 2. ✍️ Handwritten Digit Classification
+
+```bash
+cd "Handwritten Digit Classification"
+python app.py
+```
+- Access: `http://localhost:5000`
+- Input: Image upload (MNIST format)
+- Output: Digit prediction (0-9) with confidence
+
+### 3. 🩺 Diabetes Prediction
+
+```bash
+cd "Diabetes Prediction"
+python app.py
+```
+- Access: `http://localhost:5000`
+- Input: Medical parameters (8 fields)
+- Output: Diabetes risk prediction with probability
+
+### 4. 🎨 Deep Dream Art Generator
+
+```bash
+cd deepdream-app
+python app.py
+```
+- Access: `http://localhost:5000`
+- Input: Any image file
+- Output: Psychedelic artistic transformation
+- Note: First run may take 5-10 seconds for InceptionV3 model loading
+
+### 5. 🧠 Denoising Autoencoder
+
+```bash
+cd denoising_autoencoder
+python app.py
+```
+- Access: `http://localhost:5000`
+- Input: Noisy or degraded brain MRI images
+- Output: Denoised medical image
+- Dataset: BraTS (2018, 2019, 2020) - optional for training
+
+### 6. 🏥 Medical BERT Text Classifier
+
+```bash
+cd medical-bert
+python app.py
+```
+- Access: `http://localhost:5000`
+- Input: Medical text or disease description
+- Output: Disease category classification
+
+### 7. 🎤 Seq2Seq Speech-to-Text
+
+```bash
+cd seq2seq-speech
+python app.py
+```
+- Access: `http://localhost:5000`
+- Input: Audio file (WAV/MP3)
+- Output: Transcribed text
+- Uses MFCC feature extraction
+
+---
+
+## ⚡ Quick Start (All Models)
+
+```bash
+# Install dependencies once
+pip install -r requirements.txt
+
+# Run any model
+cd <model-directory>
+python app.py
+
+# Open browser: http://localhost:5000
+```
 
 ---
 
@@ -184,174 +373,57 @@ All pre-trained models are included:
 
 ## 🤝 Contributing
 
-Contributions welcome! Areas for enhancement:
+Contributions are welcome! Areas for enhancement:
 - Model accuracy improvements
 - Additional dataset support
 - UI/UX enhancements
 - Performance optimization
 - New model architectures
+- Documentation improvements
+
+Please submit pull requests with detailed descriptions of changes.
+
+---
+
+## 👨‍💻 Authors & Credits
+
+**Project Creator**: R Murali  
+**Institution**: Chaitanya Bharathi Institute of Technology  
+**Qualification**: B.E Information Technology
+
+Developed as part of deep learning research and educational initiatives.
 
 ---
 
 ## 📝 License
 
-MIT License - Feel free to use, modify, and distribute
+MIT License
+
+Copyright (c) 2024-2026 NeuroHub Contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+**Disclaimer**: These models are for educational and research purposes. Use responsibly in production environments.
 
 ---
 
-**Last Updated**: May 2026
-**Models**: 7 | **Status**: All Production-Ready ✅
+## 📞 Contact & Support
+
+For issues, questions, or suggestions:
+- Open an issue on GitHub
+- Check existing documentation
+- Review model-specific README files in each project folder
 
 ---
 
-## 📁 Project Structure
-
-```
-Deep-Learning-Dashboard/
-│
-├── house_price/
-│   ├── app.py
-│   ├── model/
-│   │   ├── house_model.h5
-│   │   └── scaler.pkl
-│   ├── templates/
-│   │   └── index.html
-│   └── static/
-│       └── style.css
-│
-├── digit_recognition/
-│   ├── app.py
-│   ├── model/
-│   │   └── mnist_model.h5
-│   ├── templates/
-│   │   └── index.html
-│   └── static/
-│       └── style.css
-│
-├── diabetes_prediction/
-│   ├── app.py
-│   ├── model/
-│   │   ├── diabetes_model.h5
-│   │   └── scaler.pkl
-│   ├── templates/
-│   │   └── index.html
-│   └── static/
-│       └── style.css
-│
-├── README.md
-└── requirements.txt
-```
-
----
-
-## ⚙️ Installation
-
-1. Clone the repository:
-
-   ```
-   git clone <repository-url>
-   cd Deep-Learning-Dashboard
-   ```
-
-2. Install dependencies:
-
-   ```
-   pip install -r requirements.txt
-   ```
-
----
-
-## ▶️ Running the Projects
-
-### 🏠 House Price Prediction
-
-```
-cd house_price
-python app.py
-```
-
----
-
-### ✍️ Digit Recognition
-
-```
-cd digit_recognition
-python app.py
-```
-
----
-
-### 🩺 Diabetes Prediction
-
-```
-cd diabetes_prediction
-python app.py
-```
-
----
-
-## 🌐 Access the Application
-
-Open your browser and go to:
-
-```
-http://127.0.0.1:5000
-```
-
----
-
-## 📊 Usage
-
-### House Price Prediction
-
-* Enter housing features
-* Click **Predict Price**
-* View predicted house price
-
----
-
-### Digit Recognition
-
-* Upload a handwritten digit image
-* Click **Predict Digit**
-* View predicted digit
-
----
-
-### Diabetes Prediction
-
-* Enter medical details
-* Click **Predict**
-* View result with confidence score
-
----
-
-## 🎯 Learning Outcomes
-
-* Implementation of MLP for different problem types
-* Integration of deep learning models with Flask
-* Data preprocessing and feature scaling
-* Building end-to-end AI web applications
-
----
-
-## 📌 Future Improvements
-
-* Combine all models into a single dashboard
-* Add real-time graph updates
-* Deploy on cloud platforms
-* Improve UI/UX with animations
-
----
-
-## 👨‍💻 Author
-
-**R Murali**
-B.E Information Technology
-Chaitanya Bharathi Institute of Technology
-
----
-
-## 📜 License
-
-This project is for academic and educational purposes.
+**Last Updated**: May 2026  
+**Total Models**: 7 | **Status**: All Production-Ready ✅  
+**Repository**: [NeuroHub](https://github.com/)
